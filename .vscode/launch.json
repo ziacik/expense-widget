@@ -1,0 +1,138 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Studio Backend (k8s env)",
+			"runtimeExecutable": "${workspaceFolder}/node_modules/.bin/tsx",
+			"program": "${workspaceFolder}/apps/studio-resco-backend/src/index.ts",
+			"cwd": "${workspaceFolder}/apps/studio-resco-backend",
+			"env": {
+				"STUDIO_RESCO_ENV_FILE": ".env.k8s.local"
+			},
+			"sourceMaps": true,
+			"outFiles": [],
+			"resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"],
+			"skipFiles": ["<node_internals>/**"],
+			"console": "integratedTerminal",
+			"internalConsoleOptions": "neverOpen"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Studio Backend (local .env)",
+			"runtimeExecutable": "${workspaceFolder}/node_modules/.bin/tsx",
+			"program": "${workspaceFolder}/apps/studio-resco-backend/src/index.ts",
+			"cwd": "${workspaceFolder}/apps/studio-resco-backend",
+			"sourceMaps": true,
+			"outFiles": [],
+			"resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"],
+			"skipFiles": ["<node_internals>/**"],
+			"console": "integratedTerminal",
+			"internalConsoleOptions": "neverOpen"
+		},
+		{
+			"type": "chrome",
+			"request": "launch",
+			"name": "Studio Frontend (Chrome)",
+			"preLaunchTask": "serve: studio-resco-frontend",
+			"url": "http://localhost:5173",
+			"webRoot": "${workspaceFolder}/apps/studio-resco-frontend/src",
+			"userDataDir": "${workspaceFolder}/.vscode/chrome-debug-profile",
+			"sourceMapPathOverrides": {
+				"/@fs/*": "${workspaceFolder}/*"
+			}
+		},
+		{
+			"type": "node",
+			"request": "attach",
+			"name": "Studio Backend (attach)",
+			"port": 9229,
+			"restart": true,
+			"sourceMaps": true,
+			"resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"],
+			"skipFiles": ["<node_internals>/**"]
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "External User Portal API",
+			"preLaunchTask": "build: external-user-portal-api",
+			"program": "${workspaceFolder}/dist/apps/external-user-portal-api/index.js",
+			"cwd": "${workspaceFolder}/apps/external-user-portal-api",
+			"envFile": "${workspaceFolder}/apps/external-user-portal-api/.env.local",
+			"env": {
+				"APP_DIR": "${workspaceFolder}/apps/external-user-portal-api"
+			},
+			"runtimeArgs": ["--enable-source-maps"],
+			"sourceMaps": true,
+			"outFiles": ["${workspaceFolder}/dist/apps/external-user-portal-api/**/*.js"],
+			"resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"],
+			"skipFiles": ["<node_internals>/**"],
+			"console": "integratedTerminal",
+			"internalConsoleOptions": "neverOpen"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "External User Proxy",
+			"preLaunchTask": "build: external-user-proxy",
+			"program": "${workspaceFolder}/dist/apps/external-user-proxy/index.js",
+			"cwd": "${workspaceFolder}/apps/external-user-proxy",
+			"envFile": "${workspaceFolder}/apps/external-user-proxy/.env.local",
+			"env": {
+				"APP_DIR": "${workspaceFolder}/apps/external-user-proxy"
+			},
+			"runtimeArgs": ["--enable-source-maps"],
+			"sourceMaps": true,
+			"outFiles": ["${workspaceFolder}/dist/apps/external-user-proxy/**/*.js"],
+			"resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"],
+			"skipFiles": ["<node_internals>/**"],
+			"console": "integratedTerminal",
+			"internalConsoleOptions": "neverOpen"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Debug @org/api with Nx",
+			"runtimeExecutable": "npx",
+			"runtimeArgs": ["nx", "serve", "@org/api"],
+			"env": {
+				"NODE_OPTIONS": "--inspect=9229"
+			},
+			"console": "integratedTerminal",
+			"internalConsoleOptions": "neverOpen",
+			"skipFiles": ["<node_internals>/**"],
+			"sourceMaps": true,
+			"outFiles": ["${workspaceFolder}/apps/api/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Debug resco-mcp-server with Nx",
+			"runtimeExecutable": "npx",
+			"runtimeArgs": ["nx", "serve", "resco-mcp-server"],
+			"env": {
+				"NODE_OPTIONS": "--inspect=9230"
+			},
+			"console": "integratedTerminal",
+			"internalConsoleOptions": "neverOpen",
+			"skipFiles": ["<node_internals>/**"],
+			"sourceMaps": true,
+			"outFiles": ["${workspaceFolder}/apps/resco-mcp-server/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+		}
+	],
+	"compounds": [
+		{
+			"name": "Studio Full Stack (k8s env)",
+			"configurations": ["Studio Backend (k8s env)", "Studio Frontend (Chrome)"],
+			"stopAll": true
+		},
+		{
+			"name": "External Users Full Stack",
+			"configurations": ["External User Portal API", "External User Proxy"],
+			"stopAll": true
+		}
+	]
+}

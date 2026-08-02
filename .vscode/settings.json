@@ -1,7 +1,13 @@
 {
-  "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit",
-    "source.organizeImports": "explicit",
-    "source.sortMembers": "explicit"
-  }
+	"editor.codeActionsOnSave": {
+		"source.organizeImports": "always"
+	},
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.formatOnSave": true,
+	"editor.formatOnPaste": true,
+	"editor.renderWhitespace": "boundary",
+	"eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact", "json"],
+	"js/ts.preferences.preferTypeOnlyAutoImports": true,
+	"js/ts.tsdk.path": "node_modules/typescript/lib",
+	"js/ts.tsdk.promptToUseWorkspaceVersion": true
 }

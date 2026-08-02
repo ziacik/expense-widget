@@ -1,0 +1,36 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "serve: studio-resco-frontend",
+			"type": "shell",
+			"command": "npx nx serve studio-resco-frontend",
+			"isBackground": true,
+			"presentation": { "reveal": "always", "panel": "dedicated" },
+			"problemMatcher": {
+				"pattern": { "regexp": "^$" },
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "VITE",
+					"endsPattern": "Local:.*localhost"
+				}
+			}
+		},
+		{
+			"label": "build: external-user-proxy",
+			"type": "shell",
+			"command": "npx nx run external-user-proxy:build:development",
+			"group": "build",
+			"presentation": { "reveal": "silent", "panel": "shared" },
+			"problemMatcher": []
+		},
+		{
+			"label": "build: external-user-portal-api",
+			"type": "shell",
+			"command": "npx nx run external-user-portal-api:build:development",
+			"group": "build",
+			"presentation": { "reveal": "silent", "panel": "shared" },
+			"problemMatcher": []
+		}
+	]
+}
