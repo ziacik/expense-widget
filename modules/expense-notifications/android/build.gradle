@@ -1,0 +1,11 @@
+plugins {
+	id 'com.android.library'
+	id 'expo-module-gradle-plugin'
+}
+
+group = 'sk.ziacik.expensewidget.notifications'
+version = '0.1.0'
+
+android {
+	namespace "sk.ziacik.expensewidget.notifications"
+}
