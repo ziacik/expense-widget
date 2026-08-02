@@ -3,6 +3,9 @@
 # dependencies
 node_modules/
 
+# Ai
+.superpowers/
+
 # Expo
 .expo/
 dist/
