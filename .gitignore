@@ -44,6 +44,7 @@ example
 # generated native folders
 /ios
 /android
+/modules/expense-notifications/android/build/
 
 # Local Superpowers brainstorming artifacts
 .superpowers/
