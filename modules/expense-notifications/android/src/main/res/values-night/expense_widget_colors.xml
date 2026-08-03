@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<color name="expense_widget_background">#A6003A32</color>
-	<color name="expense_widget_background_end">#A64A1024</color>
-	<color name="expense_widget_border">#66FFFFFF</color>
-	<color name="expense_widget_expense">#FFB4AB</color>
-	<color name="expense_widget_primary">#F1F3F4</color>
-	<color name="expense_widget_secondary">#BDC1C6</color>
-	<color name="expense_widget_warning">#FFD180</color>
+	<color name="expense_widget_background">#FF54D8CD</color>
+	<color name="expense_widget_background_end">#FFFF9A88</color>
+	<color name="expense_widget_border">#26152227</color>
+	<color name="expense_widget_highlight">#33FFFFFF</color>
+	<color name="expense_widget_expense">#68142A</color>
+	<color name="expense_widget_primary">#172326</color>
+	<color name="expense_widget_secondary">#344348</color>
+	<color name="expense_widget_warning">#6A4100</color>
 </resources>
