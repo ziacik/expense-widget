@@ -5,56 +5,61 @@
 	android:layout_height="match_parent"
 	android:background="@drawable/expense_widget_background"
 	android:contentDescription="@string/expense_widget_description"
-	android:orientation="vertical"
-	android:padding="10dp">
+	android:gravity="center_vertical"
+	android:orientation="horizontal"
+	android:paddingHorizontal="9dp"
+	android:paddingVertical="6dp">
 
-	<TextView
-		android:id="@+id/expense_widget_month"
-		android:layout_width="match_parent"
+	<LinearLayout
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:ellipsize="end"
-		android:fontFamily="sans-serif-medium"
-		android:includeFontPadding="false"
-		android:maxLines="1"
-		android:text="@string/expense_widget_name"
-		android:textColor="@color/expense_widget_primary"
-		android:textSize="12sp" />
+		android:layout_weight="1"
+		android:orientation="vertical">
+
+		<TextView
+			android:id="@+id/expense_widget_month"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:ellipsize="end"
+			android:fontFamily="sans-serif-medium"
+			android:includeFontPadding="false"
+			android:maxLines="1"
+			android:text="@string/expense_widget_name"
+			android:textColor="@color/expense_widget_primary"
+			android:textSize="10sp" />
+
+		<TextView
+			android:id="@+id/expense_widget_count"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="2dp"
+			android:ellipsize="end"
+			android:includeFontPadding="false"
+			android:maxLines="1"
+			android:text="@string/expense_widget_zero_transactions"
+			android:textColor="@color/expense_widget_secondary"
+			android:textSize="9sp" />
+	</LinearLayout>
 
 	<TextView
 		android:id="@+id/expense_widget_total"
-		android:layout_width="match_parent"
-		android:layout_height="0dp"
-		android:layout_marginTop="3dp"
-		android:layout_weight="1"
+		android:layout_width="0dp"
+		android:layout_height="match_parent"
+		android:layout_marginStart="6dp"
+		android:layout_weight="1.25"
 		android:ellipsize="end"
 		android:fontFamily="sans-serif-medium"
-		android:gravity="center_vertical"
+		android:gravity="center_vertical|end"
 		android:includeFontPadding="false"
 		android:maxLines="2"
 		android:text="@string/expense_widget_zero_amount"
 		android:textColor="@color/expense_widget_expense"
-		android:textSize="26sp" />
-
-	<TextView
-		android:id="@+id/expense_widget_count"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:ellipsize="end"
-		android:includeFontPadding="false"
-		android:maxLines="1"
-		android:text="@string/expense_widget_zero_transactions"
-		android:textColor="@color/expense_widget_secondary"
-		android:textSize="11sp" />
+		android:textSize="22sp" />
 
 	<TextView
 		android:id="@+id/expense_widget_updated"
-		android:layout_width="match_parent"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="1dp"
-		android:ellipsize="end"
-		android:includeFontPadding="false"
-		android:maxLines="1"
 		android:text="@string/expense_widget_initial_update"
-		android:textColor="@color/expense_widget_secondary"
-		android:textSize="9sp" />
+		android:visibility="gone" />
 </LinearLayout>

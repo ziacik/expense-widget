@@ -167,7 +167,7 @@ internal object ExpenseWidgetRenderer {
 		views.setTextViewTextSize(
 			R.id.expense_widget_total,
 			TypedValue.COMPLEX_UNIT_SP,
-			18f,
+			14f,
 		)
 		views.setTextColor(
 			R.id.expense_widget_total,
@@ -206,10 +206,10 @@ internal object ExpenseWidgetRenderer {
 
 	private fun totalTextSize(totalText: String): Float {
 		return when {
-			totalText.length <= 11 -> 26f
-			totalText.length <= 16 -> 21f
-			totalText.length <= 22 -> 17f
-			else -> 14f
+			totalText.length <= 11 -> 22f
+			totalText.length <= 16 -> 18f
+			totalText.length <= 22 -> 15f
+			else -> 13f
 		}
 	}
 

@@ -4,7 +4,7 @@ import { CURRENT_PARSER_VERSION, isEligibleForParserVersion } from "../parser-ve
 
 describe("parser version eligibility", () => {
 	it("starts with a positive parser version", () => {
-		expect(CURRENT_PARSER_VERSION).toBe(1);
+		expect(CURRENT_PARSER_VERSION).toBe(2);
 	});
 
 	it("always accepts pending rows and never automatically reparses processed rows", () => {

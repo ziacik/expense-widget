@@ -1,4 +1,4 @@
-export const CURRENT_PARSER_VERSION = 1;
+export const CURRENT_PARSER_VERSION = 2;
 
 export type InboxProcessingStatus = "pending" | "processed" | "unsupported" | "unparsed";
 

@@ -46,6 +46,12 @@ describe("parseCsobCardNotification", () => {
 		expect(parseCsobCardNotification(makeBankNotificationEnvelope({ bigText: lines.join("\n") })).outcome).toBe("parsed");
 	});
 
+	it("accepts grouped thousands in balance lines", () => {
+		const body = CSOB_CARD_BODY.replace("2345,67 EUR", "2 345,67 EUR").replace("-1234,56 EUR", "-1 234,56 EUR");
+
+		expect(parseCsobCardNotification(makeBankNotificationEnvelope({ bigText: body })).outcome).toBe("parsed");
+	});
+
 	it("returns unsupported outcomes for another package or title", () => {
 		expectFailure(makeBankNotificationEnvelope({ packageName: "com.example.bank" }), "unsupported_package", "unsupported");
 		expectFailure(makeBankNotificationEnvelope({ title: "Platba kartou" }), "unsupported_title", "unsupported");

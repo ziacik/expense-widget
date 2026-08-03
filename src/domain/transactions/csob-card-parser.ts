@@ -136,7 +136,7 @@ function looksLikeDateTime(line: string): boolean {
 }
 
 function isValidBalanceLine(line: string): boolean {
-	return /^(Disponibilný zostatok|Vlastné prostriedky) -?[0-9]+,[0-9]{2} EUR$/.test(line);
+	return /^(Disponibilný zostatok|Vlastné prostriedky) -?(?:[0-9]+|[0-9]{1,3}(?: [0-9]{3})+),[0-9]{2} EUR$/.test(line);
 }
 
 function unsupportedFailure(code: UnsupportedParserErrorCode): CardExpenseParseResult {
