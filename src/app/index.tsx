@@ -1,92 +1,313 @@
-import * as Device from "expo-device";
-import { Platform, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SymbolView } from "expo-symbols";
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
 
-import { AnimatedIcon } from "@/components/animated-icon";
-import { HintRow } from "@/components/hint-row";
-import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
-import { WebBadge } from "@/components/web-badge";
-import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
+import { MonthSelector } from "@/components/month-selector";
+import { TransactionRow } from "@/components/transaction-row";
+import { MaxContentWidth } from "@/constants/theme";
+import { useExpenseOverview } from "@/hooks/use-expense-overview";
+import { useTheme } from "@/hooks/use-theme";
+import { formatEuroMinor, formatTransactionCount } from "@/utils/expense-format";
 
-function getDevMenuHint() {
-	if (Platform.OS === "web") {
-		return <ThemedText type="small">use browser devtools</ThemedText>;
-	}
-	if (Device.isDevice) {
-		return (
-			<ThemedText type="small">
-				shake device or press <ThemedText type="code">m</ThemedText> in terminal
-			</ThemedText>
-		);
-	}
-	const shortcut = Platform.OS === "android" ? "cmd+m (or ctrl+m)" : "cmd+d";
+export default function ExpenseOverviewScreen() {
+	const colors = useTheme();
+	const overview = useExpenseOverview();
+
 	return (
-		<ThemedText type="small">
-			press <ThemedText type="code">{shortcut}</ThemedText>
-		</ThemedText>
+		<FlatList
+			contentContainerStyle={[styles.content, { backgroundColor: colors.background }]}
+			data={overview.transactions}
+			ItemSeparatorComponent={() => <View style={[styles.separator, { backgroundColor: colors.border }]} />}
+			keyExtractor={(transaction) => transaction.transactionId}
+			ListEmptyComponent={<OverviewEmptyState error={overview.error} isLoading={overview.isLoading} onRetry={() => void overview.refresh()} />}
+			ListHeaderComponent={
+				<OverviewHeader
+					canSelectNextMonth={overview.canSelectNextMonth}
+					error={overview.error}
+					isLoading={overview.isLoading}
+					monthKey={overview.selectedMonthKey}
+					notificationAccessGranted={overview.notificationAccessGranted}
+					onMonthChange={overview.setSelectedMonthKey}
+					onOpenNotificationSettings={() => void overview.openNotificationSettings()}
+					summary={overview.summary}
+				/>
+			}
+			refreshControl={
+				<RefreshControl
+					colors={[colors.text]}
+					onRefresh={() => void overview.refresh()}
+					progressBackgroundColor={colors.backgroundElement}
+					refreshing={overview.isRefreshing}
+					tintColor={colors.text}
+				/>
+			}
+			renderItem={({ item }) => <TransactionRow transaction={item} />}
+		/>
 	);
 }
 
-export default function HomeScreen() {
+type OverviewHeaderProps = {
+	canSelectNextMonth: boolean;
+	error: string | null;
+	isLoading: boolean;
+	monthKey: string;
+	notificationAccessGranted: boolean | null;
+	onMonthChange: (monthKey: string) => void;
+	onOpenNotificationSettings: () => void;
+	summary: { value: { totalMinor: number; transactionCount: number }; error: null } | { value: null; error: string };
+};
+
+function OverviewHeader({
+	canSelectNextMonth,
+	error,
+	isLoading,
+	monthKey,
+	notificationAccessGranted,
+	onMonthChange,
+	onOpenNotificationSettings,
+	summary,
+}: OverviewHeaderProps) {
+	const colors = useTheme();
+
 	return (
-		<ThemedView style={styles.container}>
-			<SafeAreaView style={styles.safeArea}>
-				<ThemedView style={styles.heroSection}>
-					<AnimatedIcon />
-					<ThemedText type="title" style={styles.title}>
-						Welcome to&nbsp;Expo
-					</ThemedText>
-				</ThemedView>
+		<>
+			<MonthSelector canSelectNext={canSelectNextMonth} monthKey={monthKey} onChange={onMonthChange} />
+			<View
+				style={[
+					styles.summaryBand,
+					{
+						backgroundColor: colors.backgroundElement,
+						borderColor: colors.border,
+					},
+				]}
+			>
+				<Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Spolu</Text>
+				<View style={styles.summaryValueSlot}>
+					{isLoading ? (
+						<ActivityIndicator color={colors.text} size="small" />
+					) : summary.error !== null ? (
+						<Text style={[styles.summaryError, { color: colors.warning }]}>{summary.error}</Text>
+					) : (
+						<Text style={[styles.summaryValue, { color: colors.expense }]}>{formatEuroMinor(summary.value.totalMinor)}</Text>
+					)}
+				</View>
+				<Text style={[styles.summaryCount, { color: colors.textSecondary }]}>
+					{summary.value ? formatTransactionCount(summary.value.transactionCount) : "Súčet nie je dostupný"}
+				</Text>
+			</View>
 
-				<ThemedText type="code" style={styles.code}>
-					get started
-				</ThemedText>
+			<NotificationAccessBand granted={notificationAccessGranted} onOpenSettings={onOpenNotificationSettings} />
 
-				<ThemedView type="backgroundElement" style={styles.stepContainer}>
-					<HintRow title="Try editing" hint={<ThemedText type="code">src/app/index.tsx</ThemedText>} />
-					<HintRow title="Dev tools" hint={getDevMenuHint()} />
-					<HintRow title="Fresh start" hint={<ThemedText type="code">npm run reset-project</ThemedText>} />
-				</ThemedView>
+			{error && !isLoading ? (
+				<View style={[styles.inlineError, { backgroundColor: colors.errorBackground }]}>
+					<Text style={[styles.inlineErrorText, { color: colors.text }]}>{error}</Text>
+				</View>
+			) : null}
 
-				{Platform.OS === "web" && <WebBadge />}
-			</SafeAreaView>
-		</ThemedView>
+			<Text style={[styles.sectionTitle, { color: colors.text }]}>Transakcie</Text>
+		</>
+	);
+}
+
+function NotificationAccessBand({ granted, onOpenSettings }: { granted: boolean | null; onOpenSettings: () => void }) {
+	const colors = useTheme();
+	if (granted === null) {
+		return (
+			<View style={[styles.accessBand, { borderColor: colors.border }]}>
+				<ActivityIndicator color={colors.textSecondary} size="small" />
+				<Text style={[styles.accessText, { color: colors.textSecondary }]}>Kontrolujem prístup</Text>
+			</View>
+		);
+	}
+	if (granted) {
+		return (
+			<View style={[styles.accessBand, { borderColor: colors.border }]}>
+				<View style={[styles.statusDot, { backgroundColor: colors.success }]} />
+				<Text style={[styles.accessText, { color: colors.text }]}>ČSOB pripojená</Text>
+			</View>
+		);
+	}
+
+	return (
+		<View
+			style={[
+				styles.accessBand,
+				{
+					backgroundColor: colors.warningBackground,
+					borderColor: colors.warning,
+				},
+			]}
+		>
+			<View style={[styles.statusDot, { backgroundColor: colors.warning }]} />
+			<Text style={[styles.accessWarningText, { color: colors.text }]}>Prístup k notifikáciám je vypnutý</Text>
+			<Pressable
+				accessibilityRole="button"
+				onPress={onOpenSettings}
+				style={({ pressed }) => [styles.settingsButton, { borderColor: colors.warning }, pressed && styles.pressed]}
+			>
+				<SymbolView name={{ ios: "gearshape", android: "settings" }} size={20} tintColor={colors.text} />
+				<Text style={[styles.settingsButtonText, { color: colors.text }]}>Povoliť prístup</Text>
+			</Pressable>
+		</View>
+	);
+}
+
+function OverviewEmptyState({ error, isLoading, onRetry }: { error: string | null; isLoading: boolean; onRetry: () => void }) {
+	const colors = useTheme();
+	if (isLoading) {
+		return <View style={styles.emptySlot} />;
+	}
+	if (error) {
+		return (
+			<View style={styles.emptyState}>
+				<Text style={[styles.emptyTitle, { color: colors.text }]}>{error}</Text>
+				<Pressable
+					accessibilityRole="button"
+					onPress={onRetry}
+					style={({ pressed }) => [styles.retryButton, { borderColor: colors.border }, pressed && styles.pressed]}
+				>
+					<SymbolView name={{ ios: "arrow.clockwise", android: "refresh" }} size={20} tintColor={colors.text} />
+					<Text style={[styles.retryText, { color: colors.text }]}>Skúsiť znova</Text>
+				</Pressable>
+			</View>
+		);
+	}
+
+	return (
+		<View style={styles.emptyState}>
+			<Text style={[styles.emptyTitle, { color: colors.text }]}>Žiadne výdavky</Text>
+		</View>
 	);
 }
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		justifyContent: "center",
-		flexDirection: "row",
-	},
-	safeArea: {
-		flex: 1,
-		paddingHorizontal: Spacing.four,
-		alignItems: "center",
-		gap: Spacing.three,
-		paddingBottom: BottomTabInset + Spacing.three,
+	content: {
+		flexGrow: 1,
+		width: "100%",
 		maxWidth: MaxContentWidth,
+		alignSelf: "center",
+		paddingHorizontal: 20,
+		paddingBottom: 32,
 	},
-	heroSection: {
+	separator: {
+		height: StyleSheet.hairlineWidth,
+	},
+	summaryBand: {
+		minHeight: 156,
+		marginHorizontal: -20,
+		paddingHorizontal: 20,
+		paddingVertical: 22,
+		borderTopWidth: StyleSheet.hairlineWidth,
+		borderBottomWidth: StyleSheet.hairlineWidth,
+	},
+	summaryLabel: {
+		fontSize: 14,
+		fontWeight: "600",
+	},
+	summaryValueSlot: {
+		height: 54,
+		justifyContent: "center",
+	},
+	summaryValue: {
+		fontSize: 36,
+		fontWeight: "800",
+		lineHeight: 46,
+	},
+	summaryError: {
+		fontSize: 24,
+		fontWeight: "700",
+	},
+	summaryCount: {
+		fontSize: 14,
+		fontWeight: "600",
+	},
+	accessBand: {
+		minHeight: 64,
+		marginHorizontal: -20,
+		paddingHorizontal: 20,
+		paddingVertical: 10,
+		borderBottomWidth: StyleSheet.hairlineWidth,
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 10,
+	},
+	statusDot: {
+		width: 10,
+		height: 10,
+		borderRadius: 5,
+	},
+	accessText: {
+		flex: 1,
+		fontSize: 14,
+		fontWeight: "700",
+	},
+	accessWarningText: {
+		flex: 1,
+		fontSize: 14,
+		fontWeight: "700",
+		lineHeight: 19,
+	},
+	settingsButton: {
+		minHeight: 44,
+		maxWidth: "48%",
+		borderWidth: 1,
+		borderRadius: 8,
+		paddingHorizontal: 12,
+		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "center",
-		flex: 1,
-		paddingHorizontal: Spacing.four,
-		gap: Spacing.four,
+		gap: 7,
 	},
-	title: {
+	settingsButtonText: {
+		flexShrink: 1,
+		fontSize: 13,
+		fontWeight: "700",
 		textAlign: "center",
 	},
-	code: {
-		textTransform: "uppercase",
+	inlineError: {
+		marginHorizontal: -20,
+		paddingHorizontal: 20,
+		paddingVertical: 10,
 	},
-	stepContainer: {
-		gap: Spacing.three,
-		alignSelf: "stretch",
-		paddingHorizontal: Spacing.three,
-		paddingVertical: Spacing.four,
-		borderRadius: Spacing.four,
+	inlineErrorText: {
+		fontSize: 13,
+		fontWeight: "600",
+	},
+	sectionTitle: {
+		paddingTop: 24,
+		paddingBottom: 8,
+		fontSize: 18,
+		fontWeight: "800",
+	},
+	emptySlot: {
+		height: 72,
+	},
+	emptyState: {
+		minHeight: 150,
+		alignItems: "center",
+		justifyContent: "center",
+		gap: 16,
+		paddingVertical: 24,
+	},
+	emptyTitle: {
+		fontSize: 16,
+		fontWeight: "700",
+		textAlign: "center",
+	},
+	retryButton: {
+		height: 44,
+		borderWidth: 1,
+		borderRadius: 8,
+		paddingHorizontal: 16,
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "center",
+		gap: 8,
+	},
+	retryText: {
+		fontSize: 14,
+		fontWeight: "700",
+	},
+	pressed: {
+		opacity: 0.6,
 	},
 });

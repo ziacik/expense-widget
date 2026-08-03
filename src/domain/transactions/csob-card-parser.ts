@@ -1,7 +1,7 @@
 import { buildSemanticCandidateKey, buildSourceEventKey } from "./keys";
 import { normalizeBankLocalDateTime, normalizeMerchant, parseEuroMinor } from "./normalization";
 import { selectNotificationBody } from "./notification-body";
-import type { BankNotificationEnvelope, CardExpenseParseResult, FailedCardExpenseParse, ParserErrorCode } from "./types";
+import type { BankNotificationEnvelope, CardExpenseParseResult, UnparsedParserErrorCode, UnsupportedParserErrorCode } from "./types";
 
 const CSOB_PACKAGE_NAME = "com.zentity.sbank.csobsk";
 const CSOB_CARD_TITLE = "Transakcia kartou";
@@ -10,51 +10,51 @@ const OWN_BALANCE_PREFIX = "Vlastné prostriedky";
 
 export function parseCsobCardNotification(envelope: BankNotificationEnvelope): CardExpenseParseResult {
 	if (envelope.packageName !== CSOB_PACKAGE_NAME) {
-		return failure("unsupported_package", "unsupported");
+		return unsupportedFailure("unsupported_package");
 	}
 	if (envelope.title !== CSOB_CARD_TITLE) {
-		return failure("unsupported_title", "unsupported");
+		return unsupportedFailure("unsupported_title");
 	}
 
 	const body = selectNotificationBody(envelope);
 	if (body === null) {
-		return failure("missing_body");
+		return unparsedFailure("missing_body");
 	}
 
 	const lines = body.split("\n");
 	if (!hasValidBodyShape(lines)) {
-		return failure("invalid_body_shape");
+		return unparsedFailure("invalid_body_shape");
 	}
 
 	const amountMatch = /^Suma: ([0-9]+,[0-9]{2}) EUR$/.exec(lines[0]);
 	if (amountMatch === null) {
-		return failure("invalid_amount");
+		return unparsedFailure("invalid_amount");
 	}
 	const amountMinor = parseEuroMinor(amountMatch[1]);
 	if (amountMinor === null) {
-		return failure("invalid_amount");
+		return unparsedFailure("invalid_amount");
 	}
 	if (amountMinor === 0) {
-		return failure("unsupported_amount");
+		return unparsedFailure("unsupported_amount");
 	}
 
 	const merchant = normalizeMerchant(lines[1]);
 	if (merchant === "") {
-		return failure("invalid_body_shape");
+		return unparsedFailure("invalid_body_shape");
 	}
 
 	const normalizedDateTime = normalizeBankLocalDateTime(lines[2]);
 	if (normalizedDateTime === null) {
-		return failure("invalid_datetime");
+		return unparsedFailure("invalid_datetime");
 	}
 
 	const cardMatch = /^Karta \*\*\*\* ([0-9]{4})$/.exec(lines[3]);
 	if (cardMatch === null) {
-		return failure("invalid_card");
+		return unparsedFailure("invalid_card");
 	}
 
 	if (!lines.slice(4).every(isValidBalanceLine)) {
-		return failure("invalid_balance");
+		return unparsedFailure("invalid_balance");
 	}
 
 	const sourceEventKey = buildSourceEventKey(envelope);
@@ -139,6 +139,10 @@ function isValidBalanceLine(line: string): boolean {
 	return /^(Disponibilný zostatok|Vlastné prostriedky) -?[0-9]+,[0-9]{2} EUR$/.test(line);
 }
 
-function failure(code: ParserErrorCode, outcome: FailedCardExpenseParse["outcome"] = "unparsed"): FailedCardExpenseParse {
-	return { outcome, code };
+function unsupportedFailure(code: UnsupportedParserErrorCode): CardExpenseParseResult {
+	return { outcome: "unsupported", code };
+}
+
+function unparsedFailure(code: UnparsedParserErrorCode): CardExpenseParseResult {
+	return { outcome: "unparsed", code };
 }

@@ -1,26 +1,33 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
-
 import "@/global.css";
 
 import { Platform } from "react-native";
 
 export const Colors = {
 	light: {
-		text: "#000000",
-		background: "#ffffff",
-		backgroundElement: "#F0F0F3",
-		backgroundSelected: "#E0E1E6",
-		textSecondary: "#60646C",
+		text: "#1D2228",
+		background: "#F7F8FA",
+		backgroundElement: "#FFFFFF",
+		backgroundSelected: "#E9EDF1",
+		textSecondary: "#687078",
+		border: "#D9DEE3",
+		expense: "#C93232",
+		success: "#257A4A",
+		warning: "#956000",
+		warningBackground: "#FFF4D6",
+		errorBackground: "#FCE8E8",
 	},
 	dark: {
-		text: "#ffffff",
-		background: "#000000",
-		backgroundElement: "#212225",
-		backgroundSelected: "#2E3135",
-		textSecondary: "#B0B4BA",
+		text: "#F4F5F6",
+		background: "#151719",
+		backgroundElement: "#202326",
+		backgroundSelected: "#30353A",
+		textSecondary: "#AAB0B6",
+		border: "#3A4046",
+		expense: "#FF7777",
+		success: "#62C58D",
+		warning: "#F0BA53",
+		warningBackground: "#3B301A",
+		errorBackground: "#3B2224",
 	},
 } as const;
 
@@ -28,13 +35,9 @@ export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
 export const Fonts = Platform.select({
 	ios: {
-		/** iOS `UIFontDescriptorSystemDesignDefault` */
 		sans: "system-ui",
-		/** iOS `UIFontDescriptorSystemDesignSerif` */
 		serif: "ui-serif",
-		/** iOS `UIFontDescriptorSystemDesignRounded` */
 		rounded: "ui-rounded",
-		/** iOS `UIFontDescriptorSystemDesignMonospaced` */
 		mono: "ui-monospace",
 	},
 	default: {
@@ -58,8 +61,7 @@ export const Spacing = {
 	three: 16,
 	four: 24,
 	five: 32,
-	six: 64,
+	six: 48,
 } as const;
 
-export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
-export const MaxContentWidth = 800;
+export const MaxContentWidth = 720;

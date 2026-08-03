@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<color name="expense_widget_background">#FAFAF8</color>
+	<color name="expense_widget_border">#D8DADD</color>
+	<color name="expense_widget_expense">#B3261E</color>
+	<color name="expense_widget_primary">#202124</color>
+	<color name="expense_widget_secondary">#5F6368</color>
+	<color name="expense_widget_warning">#805600</color>
+</resources>

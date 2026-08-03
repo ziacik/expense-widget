@@ -29,25 +29,18 @@ export type CardExpense = {
 
 export type SemanticCandidateFields = Pick<CardExpense, "source" | "kind" | "occurredAtLocal" | "amountMinor" | "currency" | "merchant" | "cardLast4">;
 
-export type ParserErrorCode =
-	| "unsupported_package"
-	| "unsupported_title"
-	| "missing_body"
-	| "invalid_body_shape"
-	| "invalid_amount"
-	| "unsupported_amount"
-	| "invalid_datetime"
-	| "invalid_card"
-	| "invalid_balance";
+export type UnsupportedParserErrorCode = "unsupported_package" | "unsupported_title";
+
+export type UnparsedParserErrorCode =
+	"missing_body" | "invalid_body_shape" | "invalid_amount" | "unsupported_amount" | "invalid_datetime" | "invalid_card" | "invalid_balance";
+
+export type ParserErrorCode = UnsupportedParserErrorCode | UnparsedParserErrorCode;
 
 export type ParsedCardExpense = {
 	outcome: "parsed";
 	expense: CardExpense;
 };
 
-export type FailedCardExpenseParse = {
-	outcome: "unsupported" | "unparsed";
-	code: ParserErrorCode;
-};
+export type FailedCardExpenseParse = { outcome: "unsupported"; code: UnsupportedParserErrorCode } | { outcome: "unparsed"; code: UnparsedParserErrorCode };
 
 export type CardExpenseParseResult = ParsedCardExpense | FailedCardExpenseParse;
