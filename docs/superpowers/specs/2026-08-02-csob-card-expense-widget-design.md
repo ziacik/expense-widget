@@ -116,15 +116,15 @@ The native listener captures this structured envelope:
 type InboxId = string;
 
 type BankNotificationEnvelope = {
-    inboxId: InboxId;
-    notificationKey: string;
-    packageName: string;
-    postedAtMs: number;
-    capturedAtMs: number;
-    title: string | null;
-    text: string | null;
-    bigText: string | null;
-    textLines: string[];
+	inboxId: InboxId;
+	notificationKey: string;
+	packageName: string;
+	postedAtMs: number;
+	capturedAtMs: number;
+	title: string | null;
+	text: string | null;
+	bigText: string | null;
+	textLines: string[];
 };
 ```
 
@@ -172,18 +172,18 @@ Only a positive, non-zero EUR card expense is supported. Unknown currencies, neg
 
 ```ts
 type CardExpense = {
-    source: "csob-sk-smartbanking";
-    kind: "card-expense";
-    sourceNotificationKey: string;
-    sourceEventKey: string;
-    semanticCandidateKey: string;
-    amountMinor: number;
-    currency: "EUR";
-    merchant: string;
-    occurredAtLocal: string;
-    timeZone: "Europe/Bratislava";
-    monthKey: string;
-    cardLast4: string;
+	source: "csob-sk-smartbanking";
+	kind: "card-expense";
+	sourceNotificationKey: string;
+	sourceEventKey: string;
+	semanticCandidateKey: string;
+	amountMinor: number;
+	currency: "EUR";
+	merchant: string;
+	occurredAtLocal: string;
+	timeZone: "Europe/Bratislava";
+	monthKey: string;
+	cardLast4: string;
 };
 ```
 
@@ -363,65 +363,56 @@ type NotificationAccessStatus = { granted: boolean };
 type UnsupportedErrorCode = "unsupported_package" | "unsupported_title";
 
 type UnparsedErrorCode =
-    | "missing_body"
-    | "invalid_body_shape"
-    | "invalid_amount"
-    | "unsupported_amount"
-    | "invalid_datetime"
-    | "invalid_card"
-    | "invalid_balance";
+	"missing_body" | "invalid_body_shape" | "invalid_amount" | "unsupported_amount" | "invalid_datetime" | "invalid_card" | "invalid_balance";
 
-type OpenSettingsResult =
-    | { opened: true }
-    | { opened: false; reason: "settings_unavailable" };
+type OpenSettingsResult = { opened: true } | { opened: false; reason: "settings_unavailable" };
 
 type EligibleInboxBatch = {
-    items: BankNotificationEnvelope[];
-    hasMore: boolean;
+	items: BankNotificationEnvelope[];
+	hasMore: boolean;
 };
 
 type InboxCompletion =
-    | {
-          outcome: "processed";
-          inboxIds: [InboxId, ...InboxId[]];
-          parserVersion: number;
-          expense: CardExpense;
-      }
-    | {
-          outcome: "unsupported";
-          inboxIds: [InboxId, ...InboxId[]];
-          sourceEventKey: string;
-          parserVersion: number;
-          errorCode: UnsupportedErrorCode;
-      }
-    | {
-          outcome: "unparsed";
-          inboxIds: [InboxId, ...InboxId[]];
-          sourceEventKey: string;
-          parserVersion: number;
-          errorCode: UnparsedErrorCode;
-      };
+	| {
+			outcome: "processed";
+			inboxIds: [InboxId, ...InboxId[]];
+			parserVersion: number;
+			expense: CardExpense;
+	  }
+	| {
+			outcome: "unsupported";
+			inboxIds: [InboxId, ...InboxId[]];
+			sourceEventKey: string;
+			parserVersion: number;
+			errorCode: UnsupportedErrorCode;
+	  }
+	| {
+			outcome: "unparsed";
+			inboxIds: [InboxId, ...InboxId[]];
+			sourceEventKey: string;
+			parserVersion: number;
+			errorCode: UnparsedErrorCode;
+	  };
 
 type CompletionResult =
-    | { outcome: "processed"; transactionId: string; inserted: boolean }
-    | { outcome: "unsupported" | "unparsed"; transactionId: null; inserted: false };
+	{ outcome: "processed"; transactionId: string; inserted: boolean } | { outcome: "unsupported" | "unparsed"; transactionId: null; inserted: false };
 
 type DrainRequestResult = {
-    disposition: "started" | "pending_after_start_failure";
+	disposition: "started" | "pending_after_start_failure";
 };
 
 type MonthTransactions = {
-    monthKey: string;
-    items: Array<CardExpense & { transactionId: string }>;
+	monthKey: string;
+	items: Array<CardExpense & { transactionId: string }>;
 };
 
 type Diagnostics = {
-    pending: number;
-    unsupported: number;
-    unparsed: number;
-    possibleDuplicateGroups: number;
-    reusedNotificationKeys: number;
-    projectionError: boolean;
+	pending: number;
+	unsupported: number;
+	unparsed: number;
+	possibleDuplicateGroups: number;
+	reusedNotificationKeys: number;
+	projectionError: boolean;
 };
 ```
 
@@ -518,7 +509,7 @@ Every step keeps `master`, avoids unrelated refactoring, and runs lint, TypeScri
 - [Android 8 background execution limits](https://developer.android.com/about/versions/oreo/background)
 - [Android foreground-service start restrictions](https://developer.android.com/develop/background-work/services/fgs/restrictions-bg-start)
 - [Android NotificationListenerService](https://developer.android.com/reference/android/service/notification/NotificationListenerService)
-- [Android NotificationManager access check](https://developer.android.com/reference/android/app/NotificationManager#isNotificationListenerAccessGranted(android.content.ComponentName))
-- [AndroidX NotificationManagerCompat access check](https://developer.android.com/reference/androidx/core/app/NotificationManagerCompat#getEnabledListenerPackages(android.content.Context))
+- [Android NotificationManager access check](<https://developer.android.com/reference/android/app/NotificationManager#isNotificationListenerAccessGranted(android.content.ComponentName)>)
+- [AndroidX NotificationManagerCompat access check](<https://developer.android.com/reference/androidx/core/app/NotificationManagerCompat#getEnabledListenerPackages(android.content.Context)>)
 - [Android app widgets](https://developer.android.com/develop/ui/views/appwidgets)
 - [Android AlarmManager](https://developer.android.com/reference/android/app/AlarmManager)

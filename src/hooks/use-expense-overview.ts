@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppState } from "react-native";
 
 import ExpenseNotifications, { type MonthTransaction } from "../../modules/expense-notifications";
+import { calculateMonthlyBudgetProgress } from "@/domain/budget/monthly-budget";
 import { compareMonthKeys, getBratislavaMonthKey } from "@/domain/transactions/month-selection";
 import { summarizeMonth } from "@/domain/transactions/monthly-summary";
 
@@ -13,6 +14,7 @@ export function useExpenseOverview() {
 	const [currentMonthKey, setCurrentMonthKey] = useState(INITIAL_MONTH_KEY);
 	const [selectedMonthKey, updateSelectedMonthKey] = useState(INITIAL_MONTH_KEY);
 	const [transactions, setTransactions] = useState<MonthTransaction[]>([]);
+	const [monthlyBudgetMinor, setMonthlyBudgetMinor] = useState<number | null>(null);
 	const [notificationAccessGranted, setNotificationAccessGranted] = useState<boolean | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isRefreshing, setIsRefreshing] = useState(false);
@@ -24,9 +26,10 @@ export function useExpenseOverview() {
 		const requestId = ++requestSequence.current;
 
 		try {
-			const [monthTransactions, accessStatus] = await Promise.all([
+			const [monthTransactions, accessStatus, monthlyBudget] = await Promise.all([
 				ExpenseNotifications.getMonthTransactionsAsync(selectedMonthKey),
 				ExpenseNotifications.getNotificationAccessStatusAsync(),
+				ExpenseNotifications.getMonthlyBudgetAsync(),
 			]);
 			if (requestId !== requestSequence.current) {
 				return;
@@ -34,6 +37,7 @@ export function useExpenseOverview() {
 
 			setTransactions(monthTransactions.items);
 			setNotificationAccessGranted(accessStatus.granted);
+			setMonthlyBudgetMinor(monthlyBudget.amountMinor);
 			setError(null);
 		} catch {
 			if (requestId === requestSequence.current) {
@@ -119,12 +123,35 @@ export function useExpenseOverview() {
 		}
 	}, []);
 
+	const saveMonthlyBudget = useCallback(async (amountMinor: number) => {
+		try {
+			const storedBudget = await ExpenseNotifications.setMonthlyBudgetAsync(amountMinor);
+			if (storedBudget.amountMinor === null) {
+				throw new Error("The stored monthly budget is missing.");
+			}
+			setMonthlyBudgetMinor(storedBudget.amountMinor);
+			setError(null);
+		} catch (saveError) {
+			setError("Rozpočet sa nepodarilo uložiť");
+			throw saveError;
+		}
+	}, []);
+
+	const budgetProgress = useMemo(() => {
+		if (summary.value === null || monthlyBudgetMinor === null) {
+			return null;
+		}
+		return calculateMonthlyBudgetProgress(summary.value.totalMinor, monthlyBudgetMinor);
+	}, [monthlyBudgetMinor, summary.value]);
+
 	return {
 		currentMonthKey,
 		selectedMonthKey,
 		setSelectedMonthKey,
 		canSelectNextMonth: compareMonthKeys(selectedMonthKey, currentMonthKey) < 0,
 		transactions,
+		monthlyBudgetMinor,
+		budgetProgress,
 		notificationAccessGranted,
 		isLoading,
 		isRefreshing,
@@ -132,5 +159,6 @@ export function useExpenseOverview() {
 		summary,
 		refresh,
 		openNotificationSettings,
+		saveMonthlyBudget,
 	};
 }

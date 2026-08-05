@@ -41,6 +41,10 @@ export type DrainRequestResult = {
 	disposition: "started" | "pending_after_start_failure";
 };
 
+export type MonthlyBudget = {
+	amountMinor: number | null;
+};
+
 export type MonthTransaction = CardExpense & { transactionId: string };
 
 export type MonthTransactions = {
@@ -68,6 +72,8 @@ declare class ExpenseNotificationsModule extends NativeModule<ExpenseNotificatio
 	getEligibleInboxBatchAsync(parserVersion: number, limit: number): Promise<EligibleInboxBatch>;
 	completeInboxItemsAsync(completion: InboxCompletion): Promise<CompletionResult>;
 	requestInboxDrainAsync(): Promise<DrainRequestResult>;
+	getMonthlyBudgetAsync(): Promise<MonthlyBudget>;
+	setMonthlyBudgetAsync(amountMinor: number): Promise<MonthlyBudget>;
 	getMonthTransactionsAsync(monthKey: string): Promise<MonthTransactions>;
 	getDiagnosticsAsync(): Promise<ExpenseDiagnostics>;
 }

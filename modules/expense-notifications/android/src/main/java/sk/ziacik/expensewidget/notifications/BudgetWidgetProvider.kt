@@ -3,31 +3,15 @@ package sk.ziacik.expensewidget.notifications
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 
-class ExpenseWidgetProvider : AppWidgetProvider() {
-	override fun onReceive(context: Context, intent: Intent) {
-		when (intent.action) {
-			ExpenseWidgetRolloverScheduler.ACTION_MONTH_ROLLOVER,
-			Intent.ACTION_BOOT_COMPLETED,
-			Intent.ACTION_MY_PACKAGE_REPLACED,
-			Intent.ACTION_TIME_CHANGED,
-			Intent.ACTION_TIMEZONE_CHANGED -> {
-				requestAsyncUpdate(context)
-				return
-			}
-		}
-
-		super.onReceive(context, intent)
-	}
-
+class BudgetWidgetProvider : AppWidgetProvider() {
 	override fun onUpdate(
 		context: Context,
 		appWidgetManager: AppWidgetManager,
 		appWidgetIds: IntArray,
 	) {
-		requestAsyncUpdate(context, appWidgetIds, ExpenseWidgetKind.TOTAL)
+		requestAsyncUpdate(context, appWidgetIds)
 	}
 
 	override fun onAppWidgetOptionsChanged(
@@ -37,7 +21,7 @@ class ExpenseWidgetProvider : AppWidgetProvider() {
 		newOptions: Bundle,
 	) {
 		super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
-		requestAsyncUpdate(context, intArrayOf(appWidgetId), ExpenseWidgetKind.TOTAL)
+		requestAsyncUpdate(context, intArrayOf(appWidgetId))
 	}
 
 	override fun onEnabled(context: Context) {
@@ -50,14 +34,13 @@ class ExpenseWidgetProvider : AppWidgetProvider() {
 		super.onDisabled(context)
 	}
 
-	private fun requestAsyncUpdate(
-		context: Context,
-		appWidgetIds: IntArray? = null,
-		widgetKind: ExpenseWidgetKind? = null,
-	) {
+	private fun requestAsyncUpdate(context: Context, appWidgetIds: IntArray) {
 		val pendingResult = goAsync()
-		ExpenseWidgetRenderer.requestUpdate(context, appWidgetIds, widgetKind) {
-			pendingResult.finish()
-		}
+		ExpenseWidgetRenderer.requestUpdate(
+			context = context,
+			appWidgetIds = appWidgetIds,
+			widgetKind = ExpenseWidgetKind.BUDGET,
+			onComplete = pendingResult::finish,
+		)
 	}
 }

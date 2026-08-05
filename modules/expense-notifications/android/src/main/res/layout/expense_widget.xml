@@ -1,65 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@android:id/background"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:background="@drawable/expense_widget_background"
 	android:contentDescription="@string/expense_widget_description"
-	android:gravity="center_vertical"
-	android:orientation="horizontal"
-	android:paddingHorizontal="9dp"
-	android:paddingVertical="6dp">
+	android:padding="7dp">
+
+	<ImageView
+		android:id="@+id/expense_widget_artwork"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:importantForAccessibility="no"
+		android:scaleType="fitCenter"
+		android:visibility="gone" />
 
 	<LinearLayout
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:orientation="vertical">
+		android:id="@+id/expense_widget_amount_group"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:baselineAligned="true"
+		android:baselineAlignedChildIndex="0"
+		android:gravity="center"
+		android:orientation="horizontal">
 
 		<TextView
-			android:id="@+id/expense_widget_month"
-			android:layout_width="match_parent"
+			android:id="@+id/expense_widget_whole"
+			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:ellipsize="end"
-			android:fontFamily="sans-serif-medium"
+			android:fontFamily="@font/sora_semibold"
+			android:fontFeatureSettings="tnum"
 			android:includeFontPadding="false"
 			android:maxLines="1"
-			android:text="@string/expense_widget_name"
-			android:textColor="@color/expense_widget_primary"
-			android:textSize="11sp" />
+			android:text="@string/expense_widget_zero_whole"
+			android:textColor="@color/expense_widget_expense"
+			android:textSize="19sp"
+			android:textStyle="bold" />
 
 		<TextView
-			android:id="@+id/expense_widget_count"
-			android:layout_width="match_parent"
+			android:id="@+id/expense_widget_cents"
+			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="2dp"
-			android:ellipsize="end"
+			android:layout_marginStart="1dp"
+			android:fontFamily="@font/sora_medium"
+			android:fontFeatureSettings="tnum"
 			android:includeFontPadding="false"
 			android:maxLines="1"
-			android:text="@string/expense_widget_zero_transactions"
-			android:textColor="@color/expense_widget_secondary"
-			android:textSize="9sp" />
+			android:text="@string/expense_widget_zero_cents"
+			android:textColor="@color/expense_widget_expense"
+			android:textSize="12sp" />
+
+		<TextView
+			android:id="@+id/expense_widget_currency"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="2dp"
+			android:fontFamily="@font/sora_medium"
+			android:includeFontPadding="false"
+			android:maxLines="1"
+			android:text="@string/expense_widget_currency_symbol"
+			android:textColor="@color/expense_widget_expense"
+			android:textSize="10sp" />
 	</LinearLayout>
 
 	<TextView
-		android:id="@+id/expense_widget_total"
-		android:layout_width="0dp"
+		android:id="@+id/expense_widget_status"
+		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_marginStart="6dp"
-		android:layout_weight="1.25"
 		android:ellipsize="end"
-		android:fontFamily="sans-serif-medium"
-		android:gravity="center_vertical|end"
+		android:fontFamily="sans-serif"
+		android:gravity="center"
 		android:includeFontPadding="false"
 		android:maxLines="2"
-		android:text="@string/expense_widget_zero_amount"
-		android:textColor="@color/expense_widget_expense"
-		android:textSize="22sp" />
-
-	<TextView
-		android:id="@+id/expense_widget_updated"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:text="@string/expense_widget_initial_update"
+		android:textColor="@color/expense_widget_warning"
+		android:textSize="12sp"
+		android:textStyle="bold"
 		android:visibility="gone" />
-</LinearLayout>
+</FrameLayout>

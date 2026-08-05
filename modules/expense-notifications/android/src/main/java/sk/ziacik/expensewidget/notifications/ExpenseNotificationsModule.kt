@@ -13,6 +13,9 @@ class ExpenseNotificationsModule : Module() {
 	private val repository
 		get() = ExpenseRepository.getInstance(context)
 
+	private val monthlyBudgetStore
+		get() = MonthlyBudgetStore(context)
+
 	override fun definition() = ModuleDefinition {
 		Name("ExpenseNotifications")
 		Events("onExpenseDataChanged", "onNotificationAccessChanged")
@@ -72,6 +75,22 @@ class ExpenseNotificationsModule : Module() {
 					} else {
 						"pending_after_start_failure"
 					},
+			)
+		}
+
+		AsyncFunction("getMonthlyBudgetAsync") {
+			MonthlyBudgetRecord(
+				amountMinor = monthlyBudgetStore.get()?.let { amountMinor ->
+					toSafeDouble(amountMinor, "Monthly budget")
+				},
+			)
+		}
+
+		AsyncFunction("setMonthlyBudgetAsync") Coroutine { amountMinor: Double ->
+			val storedAmount = monthlyBudgetStore.set(positiveSafeInteger(amountMinor, "Monthly budget"))
+			ExpenseWidgetRenderer.awaitUpdate(context)
+			MonthlyBudgetRecord(
+				amountMinor = toSafeDouble(storedAmount, "Monthly budget"),
 			)
 		}
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatEuroMinor, formatExpenseMinor, formatMonthLabel, formatTransactionCount, formatTransactionTimestamp } from "../expense-format";
+import { formatEuroInput, formatEuroMinor, formatExpenseMinor, formatMonthLabel, formatTransactionCount, formatTransactionTimestamp } from "../expense-format";
 
 describe("expense formatting", () => {
 	it("formats integer minor units without floating-point arithmetic", () => {
@@ -8,6 +8,11 @@ describe("expense formatting", () => {
 		expect(formatEuroMinor(5)).toBe("0,05 €");
 		expect(formatEuroMinor(12345)).toBe("123,45 €");
 		expect(formatExpenseMinor(12345)).toBe("−123,45 €");
+	});
+
+	it("formats an existing amount for localized euro input", () => {
+		expect(formatEuroInput(50000)).toBe("500,00");
+		expect(formatEuroInput(120005)).toBe("1200,05");
 	});
 
 	it("rejects invalid minor-unit values", () => {

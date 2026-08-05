@@ -7,6 +7,7 @@ export type {
 	EligibleInboxBatch,
 	ExpenseDiagnostics,
 	InboxCompletion,
+	MonthlyBudget,
 	MonthTransaction,
 	MonthTransactions,
 	NotificationAccessStatus,

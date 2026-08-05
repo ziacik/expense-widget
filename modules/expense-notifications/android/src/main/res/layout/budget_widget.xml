@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@android:id/background"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@drawable/expense_widget_background"
+	android:contentDescription="@string/budget_widget_description"
+	android:padding="9dp">
+
+	<LinearLayout
+		android:id="@+id/budget_widget_content"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:gravity="center_vertical"
+		android:orientation="vertical">
+
+		<ImageView
+			android:id="@+id/budget_widget_artwork"
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1"
+			android:importantForAccessibility="no"
+			android:scaleType="fitCenter"
+			android:visibility="gone" />
+
+		<LinearLayout
+			android:id="@+id/budget_widget_preview_row"
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1"
+			android:baselineAligned="true"
+			android:gravity="center_vertical"
+			android:orientation="horizontal">
+
+			<LinearLayout
+				android:id="@+id/budget_widget_amount_group"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:baselineAligned="true"
+				android:baselineAlignedChildIndex="0"
+				android:gravity="center_vertical|start"
+				android:orientation="horizontal">
+
+				<TextView
+					android:id="@+id/budget_widget_whole"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:fontFamily="@font/sora_semibold"
+					android:fontFeatureSettings="tnum"
+					android:includeFontPadding="false"
+					android:maxLines="1"
+					android:text="@string/expense_widget_zero_whole"
+					android:textColor="@color/expense_widget_primary"
+					android:textSize="22sp"
+					android:textStyle="bold" />
+
+				<TextView
+					android:id="@+id/budget_widget_cents"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginStart="1dp"
+					android:fontFamily="@font/sora_medium"
+					android:fontFeatureSettings="tnum"
+					android:includeFontPadding="false"
+					android:maxLines="1"
+					android:text="@string/expense_widget_zero_cents"
+					android:textColor="@color/expense_widget_primary"
+					android:textSize="14sp" />
+
+				<TextView
+					android:id="@+id/budget_widget_currency"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginStart="2dp"
+					android:fontFamily="@font/sora_medium"
+					android:includeFontPadding="false"
+					android:maxLines="1"
+					android:text="@string/expense_widget_currency_symbol"
+					android:textColor="@color/expense_widget_primary"
+					android:textSize="10sp" />
+			</LinearLayout>
+
+			<LinearLayout
+				android:id="@+id/budget_widget_percentage_group"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="6dp"
+				android:baselineAligned="true"
+				android:baselineAlignedChildIndex="0"
+				android:gravity="center_vertical|end"
+				android:orientation="horizontal">
+
+				<TextView
+					android:id="@+id/budget_widget_percentage"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:fontFamily="@font/sora_semibold"
+					android:fontFeatureSettings="tnum"
+					android:includeFontPadding="false"
+					android:maxLines="1"
+					android:text="@string/budget_widget_zero_percentage"
+					android:textColor="@color/expense_widget_success"
+					android:textSize="17sp"
+					android:textStyle="bold" />
+
+				<TextView
+					android:id="@+id/budget_widget_percentage_symbol"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginStart="2dp"
+					android:fontFamily="@font/sora_medium"
+					android:includeFontPadding="false"
+					android:maxLines="1"
+					android:text="@string/budget_widget_percentage_symbol"
+					android:textColor="@color/expense_widget_success"
+					android:textSize="9sp"
+					android:translationY="-5dp" />
+			</LinearLayout>
+
+			<TextView
+				android:id="@+id/budget_widget_prompt"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="6dp"
+				android:fontFamily="@font/sora_medium"
+				android:includeFontPadding="false"
+				android:maxLines="1"
+				android:text="@string/budget_widget_set_budget"
+				android:textColor="@color/expense_widget_primary"
+				android:textSize="11sp"
+				android:visibility="gone" />
+		</LinearLayout>
+
+		<ProgressBar
+			android:id="@+id/budget_widget_progress"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="match_parent"
+			android:layout_height="3dp"
+			android:layout_marginTop="7dp"
+			android:indeterminate="false"
+			android:max="100"
+			android:progress="0"
+			android:progressDrawable="@drawable/budget_widget_progress" />
+	</LinearLayout>
+
+	<TextView
+		android:id="@+id/budget_widget_status"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:ellipsize="end"
+		android:fontFamily="sans-serif"
+		android:gravity="center"
+		android:includeFontPadding="false"
+		android:maxLines="2"
+		android:textColor="@color/expense_widget_warning"
+		android:textSize="12sp"
+		android:textStyle="bold"
+		android:visibility="gone" />
+</FrameLayout>

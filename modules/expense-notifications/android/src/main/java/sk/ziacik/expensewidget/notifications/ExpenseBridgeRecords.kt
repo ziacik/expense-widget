@@ -67,6 +67,11 @@ data class DrainRequestResultRecord(
 ) : Record
 
 @OptimizedRecord
+data class MonthlyBudgetRecord(
+	@Field val amountMinor: Double?,
+) : Record
+
+@OptimizedRecord
 data class MonthTransactionRecord(
 	@Field val transactionId: String,
 	@Field val source: String,

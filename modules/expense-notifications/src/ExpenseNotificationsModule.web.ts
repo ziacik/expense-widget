@@ -21,6 +21,14 @@ class ExpenseNotificationsModule extends NativeModule {
 		throw new Error("Expense notifications are available only on Android.");
 	}
 
+	async getMonthlyBudgetAsync(): Promise<never> {
+		throw new Error("Expense notifications are available only on Android.");
+	}
+
+	async setMonthlyBudgetAsync(): Promise<never> {
+		throw new Error("Expense notifications are available only on Android.");
+	}
+
 	async getMonthTransactionsAsync(): Promise<never> {
 		throw new Error("Expense notifications are available only on Android.");
 	}

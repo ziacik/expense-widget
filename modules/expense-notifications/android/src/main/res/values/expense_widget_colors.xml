@@ -7,5 +7,7 @@
 	<color name="expense_widget_expense">#68142A</color>
 	<color name="expense_widget_primary">#172326</color>
 	<color name="expense_widget_secondary">#344348</color>
+	<color name="expense_widget_success">#14513F</color>
+	<color name="expense_widget_progress_track">#40152227</color>
 	<color name="expense_widget_warning">#6A4100</color>
 </resources>

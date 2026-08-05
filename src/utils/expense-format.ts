@@ -7,6 +7,13 @@ export function formatEuroMinor(amountMinor: number): string {
 	return `${major},${minor} €`;
 }
 
+export function formatEuroInput(amountMinor: number): string {
+	assertNonNegativeSafeInteger(amountMinor, "Amount");
+	const major = Math.floor(amountMinor / 100);
+	const minor = (amountMinor % 100).toString().padStart(2, "0");
+	return `${major},${minor}`;
+}
+
 export function formatExpenseMinor(amountMinor: number): string {
 	return `−${formatEuroMinor(amountMinor)}`;
 }

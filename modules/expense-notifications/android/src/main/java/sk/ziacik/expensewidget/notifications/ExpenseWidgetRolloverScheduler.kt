@@ -35,11 +35,16 @@ internal object ExpenseWidgetRolloverScheduler {
 
 	fun scheduleNextIfNeeded(context: Context, nowMs: Long = System.currentTimeMillis()) {
 		val applicationContext = context.applicationContext
-		val widgetIds =
-			AppWidgetManager
-				.getInstance(applicationContext)
+		val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
+		val hasExpenseWidget =
+			appWidgetManager
 				.getAppWidgetIds(ComponentName(applicationContext, ExpenseWidgetProvider::class.java))
-		if (widgetIds.isEmpty()) {
+				.isNotEmpty()
+		val hasBudgetWidget =
+			appWidgetManager
+				.getAppWidgetIds(ComponentName(applicationContext, BudgetWidgetProvider::class.java))
+				.isNotEmpty()
+		if (!hasExpenseWidget && !hasBudgetWidget) {
 			cancel(applicationContext)
 			return
 		}
