@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.os.Build
 import android.util.SizeF
 import androidx.core.content.res.ResourcesCompat
 import kotlin.math.min
@@ -80,41 +81,47 @@ internal class WidgetTypography(private val context: Context) {
 		val rootHeightPx = size.heightDp * density
 		val paddingPx = budgetPaddingPx(size).toFloat()
 		val hasBudget = percentage != null
-		val progressSpacePx =
-			if (hasBudget) {
-				rootHeightPx * (BUDGET_PROGRESS_HEIGHT_FRACTION + BUDGET_PROGRESS_MARGIN_FRACTION)
-			} else {
-				0f
-			}
 		val widthPx = (rootWidthPx - 2f * paddingPx).roundToInt().coerceAtLeast(1)
 		val heightPx =
-			(rootHeightPx - 2f * paddingPx - progressSpacePx).roundToInt().coerceAtLeast(1)
+			calculateBudgetArtworkHeightPx(
+				rootHeightPx = rootHeightPx,
+				verticalPaddingPx = paddingPx,
+				hasBudget = hasBudget,
+				usesResponsiveProgressSpacing = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+				density = density,
+			)
 		val centsMarginPx = rootHeightPx * BUDGET_CENTS_MARGIN_FRACTION
 		val currencyMarginPx = rootHeightPx * BUDGET_CURRENCY_MARGIN_FRACTION
-		val trailingMarginPx =
-			rootHeightPx *
-				if (hasBudget) BUDGET_PERCENTAGE_MARGIN_FRACTION else BUDGET_PROMPT_MARGIN_FRACTION
+		val promptMarginPx = rootHeightPx * BUDGET_PROMPT_MARGIN_FRACTION
 		val trailingSymbolMarginPx =
 			if (hasBudget) rootHeightPx * BUDGET_PERCENTAGE_SYMBOL_MARGIN_FRACTION else 0f
 		val amountWidthAtOnePx =
 			measureAtOnePx(whole, primaryTypeface, tabular = true) +
 				measureAtOnePx(cents, supportingTypeface, tabular = true) * CENTS_RATIO +
 				measureAtOnePx(currency, supportingTypeface, tabular = false) * BUDGET_SYMBOL_RATIO
-		val trailingWidthAtOnePx =
-			if (percentage != null) {
-				measureAtOnePx(percentage, primaryTypeface, tabular = true) * PERCENTAGE_RATIO +
-					measureAtOnePx(PERCENTAGE_SYMBOL, supportingTypeface, tabular = false) *
-					PERCENTAGE_SYMBOL_RATIO
-			} else {
+		val promptWidthAtOnePx =
+			if (percentage == null) {
 				measureAtOnePx(prompt, supportingTypeface, tabular = false) * PROMPT_RATIO
+			} else {
+				0f
 			}
-		val fixedSpacingPx = centsMarginPx + currencyMarginPx + trailingMarginPx + trailingSymbolMarginPx
+		val fixedSpacingPx =
+			centsMarginPx + currencyMarginPx + if (hasBudget) 0f else promptMarginPx
+		val widthLimitedWholeSizePx =
+			(widthPx - fixedSpacingPx).coerceAtLeast(1f) /
+				(amountWidthAtOnePx + promptWidthAtOnePx)
 		val wholeSizePx =
-			min(
-				heightPx * BUDGET_TEXT_HEIGHT_FRACTION,
-				(widthPx - fixedSpacingPx).coerceAtLeast(1f) /
-					(amountWidthAtOnePx + trailingWidthAtOnePx),
-			)
+			if (hasBudget) {
+				calculateConfiguredBudgetWholeSizePx(
+					artworkHeightPx = heightPx.toFloat(),
+					widthLimitedSizePx = widthLimitedWholeSizePx,
+				)
+			} else {
+				min(
+					heightPx * BUDGET_TEXT_HEIGHT_FRACTION,
+					widthLimitedWholeSizePx,
+				)
+			}
 		val centsSizePx = wholeSizePx * CENTS_RATIO
 		val symbolSizePx = wholeSizePx * BUDGET_SYMBOL_RATIO
 		val amountWidthPx =
@@ -123,33 +130,112 @@ internal class WidgetTypography(private val context: Context) {
 				measure(cents, supportingTypeface, centsSizePx, tabular = true) +
 				currencyMarginPx +
 				measure(currency, supportingTypeface, symbolSizePx, tabular = false)
-		val baselinePx = centeredBaseline(heightPx.toFloat(), wholeSizePx)
-		val bitmap = createBitmap(widthPx, heightPx)
-		val canvas = Canvas(bitmap)
-		var x = 0f
-
-		x = drawText(canvas, whole, x, baselinePx, primaryTypeface, wholeSizePx, amountColor, tabular = true)
-		x += centsMarginPx
-		x = drawText(canvas, cents, x, baselinePx, supportingTypeface, centsSizePx, amountColor, tabular = true)
-		x += currencyMarginPx
-		drawText(canvas, currency, x, baselinePx, supportingTypeface, symbolSizePx, amountColor)
+		var amountX = 0f
+		var amountBaselinePx = centeredBaseline(heightPx.toFloat(), wholeSizePx)
+		var percentagePosition: WidgetTextPosition? = null
+		var percentageNumberSizePx = 0f
+		var percentageSymbolSizePx = 0f
 
 		if (percentage != null) {
-			val numberSizePx = wholeSizePx * PERCENTAGE_RATIO
-			val percentageSymbolSizePx = wholeSizePx * PERCENTAGE_SYMBOL_RATIO
-			val numberWidthPx = measure(percentage, primaryTypeface, numberSizePx, tabular = true)
-			val percentWidthPx =
-				measure(PERCENTAGE_SYMBOL, supportingTypeface, percentageSymbolSizePx, tabular = false)
-			val trailingWidthPx = numberWidthPx + trailingSymbolMarginPx + percentWidthPx
-			var trailingX = (widthPx - trailingWidthPx).coerceAtLeast(amountWidthPx + trailingMarginPx)
+			percentageNumberSizePx = wholeSizePx * PERCENTAGE_RATIO
+			percentageSymbolSizePx = wholeSizePx * PERCENTAGE_SYMBOL_RATIO
+			val percentageNumberWidthPx =
+				measure(percentage, primaryTypeface, percentageNumberSizePx, tabular = true)
+			val percentageSymbolWidthPx =
+				measure(
+					PERCENTAGE_SYMBOL,
+					supportingTypeface,
+					percentageSymbolSizePx,
+					tabular = false,
+				)
+			val amountFontMetrics = fontMetrics(primaryTypeface, wholeSizePx, tabular = true)
+			val percentageNumberMetrics =
+				fontMetrics(primaryTypeface, percentageNumberSizePx, tabular = true)
+			val percentageSymbolMetrics =
+				fontMetrics(supportingTypeface, percentageSymbolSizePx, tabular = false)
+			val positions =
+				calculateBudgetTextPositions(
+					canvasWidthPx = widthPx.toFloat(),
+					canvasHeightPx = heightPx.toFloat(),
+					amount =
+						WidgetTextMetrics(
+							widthPx = amountWidthPx,
+							ascentPx = amountFontMetrics.ascent,
+							descentPx = amountFontMetrics.descent,
+						),
+					percentage =
+						WidgetTextMetrics(
+							widthPx =
+								percentageNumberWidthPx +
+									trailingSymbolMarginPx +
+									percentageSymbolWidthPx,
+							ascentPx =
+								minOf(
+									percentageNumberMetrics.ascent,
+									percentageSymbolMetrics.ascent,
+								),
+							descentPx =
+								maxOf(
+									percentageNumberMetrics.descent,
+									percentageSymbolMetrics.descent,
+								),
+						),
+					percentageBottomInsetPx = 0f,
+				)
+			amountX = positions.amount.xPx
+			amountBaselinePx = positions.amount.baselinePx
+			percentagePosition = positions.percentage
+		}
+
+		val bitmap = createBitmap(widthPx, heightPx)
+		val canvas = Canvas(bitmap)
+		var x = amountX
+
+		x =
+			drawText(
+				canvas,
+				whole,
+				x,
+				amountBaselinePx,
+				primaryTypeface,
+				wholeSizePx,
+				amountColor,
+				tabular = true,
+			)
+		x += centsMarginPx
+		x =
+			drawText(
+				canvas,
+				cents,
+				x,
+				amountBaselinePx,
+				supportingTypeface,
+				centsSizePx,
+				amountColor,
+				tabular = true,
+			)
+		x += currencyMarginPx
+		drawText(
+			canvas,
+			currency,
+			x,
+			amountBaselinePx,
+			supportingTypeface,
+			symbolSizePx,
+			amountColor,
+		)
+
+		if (percentage != null) {
+			val position = checkNotNull(percentagePosition)
+			var trailingX = position.xPx
 			trailingX =
 				drawText(
 					canvas,
 					percentage,
 					trailingX,
-					baselinePx,
+					position.baselinePx,
 					primaryTypeface,
-					numberSizePx,
+					percentageNumberSizePx,
 					trailingColor,
 					tabular = true,
 				)
@@ -158,7 +244,7 @@ internal class WidgetTypography(private val context: Context) {
 				canvas,
 				PERCENTAGE_SYMBOL,
 				trailingX,
-				baselinePx - percentageSymbolSizePx * PERCENTAGE_SYMBOL_RAISE_RATIO,
+				position.baselinePx,
 				supportingTypeface,
 				percentageSymbolSizePx,
 				trailingColor,
@@ -166,12 +252,12 @@ internal class WidgetTypography(private val context: Context) {
 		} else {
 			val promptSizePx = wholeSizePx * PROMPT_RATIO
 			val promptWidthPx = measure(prompt, supportingTypeface, promptSizePx, tabular = false)
-			val promptX = (widthPx - promptWidthPx).coerceAtLeast(amountWidthPx + trailingMarginPx)
+			val promptX = (widthPx - promptWidthPx).coerceAtLeast(amountWidthPx + promptMarginPx)
 			drawText(
 				canvas,
 				prompt,
 				promptX,
-				baselinePx,
+				amountBaselinePx,
 				supportingTypeface,
 				promptSizePx,
 				trailingColor,
@@ -210,6 +296,15 @@ internal class WidgetTypography(private val context: Context) {
 		configurePaint(primaryTypeface, textSizePx, color = 0, tabular = true)
 		val metrics = paint.fontMetrics
 		return (heightPx - metrics.ascent - metrics.descent) / 2f
+	}
+
+	private fun fontMetrics(
+		typeface: Typeface,
+		textSizePx: Float,
+		tabular: Boolean,
+	): Paint.FontMetrics {
+		configurePaint(typeface, textSizePx, color = 0, tabular = tabular)
+		return paint.fontMetrics
 	}
 
 	private fun drawText(
@@ -275,10 +370,9 @@ internal class WidgetTypography(private val context: Context) {
 		private const val CENTS_RATIO = 0.64f
 		private const val TOTAL_SYMBOL_RATIO = 0.53f
 		private const val BUDGET_SYMBOL_RATIO = 0.46f
-		private const val PERCENTAGE_RATIO = 0.72f
-		private const val PERCENTAGE_SYMBOL_RATIO = 0.41f
+		private const val PERCENTAGE_RATIO = 0.34f
+		private const val PERCENTAGE_SYMBOL_RATIO = 0.28f
 		private const val PROMPT_RATIO = 0.5f
-		private const val PERCENTAGE_SYMBOL_RAISE_RATIO = 0.45f
 
 		private const val TOTAL_PADDING_FRACTION = 0.067f
 		private const val TOTAL_CENTS_MARGIN_FRACTION = 0.009f
@@ -286,12 +380,9 @@ internal class WidgetTypography(private val context: Context) {
 		private const val TOTAL_TEXT_HEIGHT_FRACTION = 0.327f
 
 		private const val BUDGET_PADDING_FRACTION = 0.086f
-		private const val BUDGET_PROGRESS_HEIGHT_FRACTION = 0.034f
-		private const val BUDGET_PROGRESS_MARGIN_FRACTION = 0.067f
 		private const val BUDGET_TEXT_HEIGHT_FRACTION = 0.453f
 		private const val BUDGET_CENTS_MARGIN_FRACTION = 0.01f
 		private const val BUDGET_CURRENCY_MARGIN_FRACTION = 0.019f
-		private const val BUDGET_PERCENTAGE_MARGIN_FRACTION = 0.057f
 		private const val BUDGET_PROMPT_MARGIN_FRACTION = 0.057f
 		private const val BUDGET_PERCENTAGE_SYMBOL_MARGIN_FRACTION = 0.019f
 

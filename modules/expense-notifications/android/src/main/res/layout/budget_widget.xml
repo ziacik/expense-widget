@@ -5,7 +5,7 @@
 	android:layout_height="match_parent"
 	android:background="@drawable/expense_widget_background"
 	android:contentDescription="@string/budget_widget_description"
-	android:padding="9dp">
+	android:padding="3dp">
 
 	<LinearLayout
 		android:id="@+id/budget_widget_content"
@@ -23,23 +23,20 @@
 			android:scaleType="fitCenter"
 			android:visibility="gone" />
 
-		<LinearLayout
+		<FrameLayout
 			android:id="@+id/budget_widget_preview_row"
 			android:layout_width="match_parent"
 			android:layout_height="0dp"
-			android:layout_weight="1"
-			android:baselineAligned="true"
-			android:gravity="center_vertical"
-			android:orientation="horizontal">
+			android:layout_weight="1">
 
 			<LinearLayout
 				android:id="@+id/budget_widget_amount_group"
-				android:layout_width="0dp"
+				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_weight="1"
+				android:layout_gravity="center"
 				android:baselineAligned="true"
 				android:baselineAlignedChildIndex="0"
-				android:gravity="center_vertical|start"
+				android:gravity="center_vertical"
 				android:orientation="horizontal">
 
 				<TextView
@@ -52,7 +49,7 @@
 					android:maxLines="1"
 					android:text="@string/expense_widget_zero_whole"
 					android:textColor="@color/expense_widget_primary"
-					android:textSize="22sp"
+					android:textSize="15sp"
 					android:textStyle="bold" />
 
 				<TextView
@@ -66,7 +63,7 @@
 					android:maxLines="1"
 					android:text="@string/expense_widget_zero_cents"
 					android:textColor="@color/expense_widget_primary"
-					android:textSize="14sp" />
+					android:textSize="10sp" />
 
 				<TextView
 					android:id="@+id/budget_widget_currency"
@@ -78,14 +75,14 @@
 					android:maxLines="1"
 					android:text="@string/expense_widget_currency_symbol"
 					android:textColor="@color/expense_widget_primary"
-					android:textSize="10sp" />
+					android:textSize="7sp" />
 			</LinearLayout>
 
 			<LinearLayout
 				android:id="@+id/budget_widget_percentage_group"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_marginStart="6dp"
+				android:layout_gravity="bottom|end"
 				android:baselineAligned="true"
 				android:baselineAlignedChildIndex="0"
 				android:gravity="center_vertical|end"
@@ -101,7 +98,7 @@
 					android:maxLines="1"
 					android:text="@string/budget_widget_zero_percentage"
 					android:textColor="@color/expense_widget_success"
-					android:textSize="17sp"
+					android:textSize="6sp"
 					android:textStyle="bold" />
 
 				<TextView
@@ -114,8 +111,7 @@
 					android:maxLines="1"
 					android:text="@string/budget_widget_percentage_symbol"
 					android:textColor="@color/expense_widget_success"
-					android:textSize="9sp"
-					android:translationY="-5dp" />
+					android:textSize="5sp" />
 			</LinearLayout>
 
 			<TextView
@@ -130,14 +126,14 @@
 				android:textColor="@color/expense_widget_primary"
 				android:textSize="11sp"
 				android:visibility="gone" />
-		</LinearLayout>
+		</FrameLayout>
 
 		<ProgressBar
 			android:id="@+id/budget_widget_progress"
 			style="?android:attr/progressBarStyleHorizontal"
 			android:layout_width="match_parent"
 			android:layout_height="3dp"
-			android:layout_marginTop="7dp"
+			android:layout_marginTop="5dp"
 			android:indeterminate="false"
 			android:max="100"
 			android:progress="0"
