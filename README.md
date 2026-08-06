@@ -1,56 +1,68 @@
-# Welcome to your Expo app 👋
+# Expense Widget
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+An Android expense tracker that turns ČSOB SmartBanking card-payment notifications into monthly spending insights, budgets, and home screen widgets.
 
-## Get started
+> [!NOTE]
+> Expense Widget currently supports positive EUR card transactions from Slovak-language ČSOB SmartBanking notifications on Android 7.0 and newer.
 
-1. Install dependencies
+## Features
 
-    ```bash
-    npm install
-    ```
+- Automatically records ČSOB card expenses from Android notifications.
+- Shows monthly totals, transaction history, merchants, and payment details.
+- Tracks progress against a configurable monthly budget.
+- Provides a compact 1×1 monthly-spending widget and a 2×1 budget widget.
+- Stores expense data and settings locally on the device.
+- Supports light and dark system themes.
 
-2. Start the app
+## How it works
 
-    ```bash
-    npx expo start
-    ```
+1. The user grants Android notification access to Expense Widget.
+2. A native notification listener filters events from the ČSOB SmartBanking app.
+3. Supported card-transaction notifications are parsed, normalized, and stored in a local SQLite database.
+4. The app and its widgets update with the current month's spending and budget progress.
 
-In the output, you'll find options to open the app in a
+Expense Widget does not connect to a bank API and does not require ČSOB credentials.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Privacy
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+Captured ČSOB notifications, parsed transactions, and the monthly budget remain in the app's private on-device storage, with Android backups disabled. The project contains no backend, analytics, upload, or cloud-synchronization code.
 
-## Get a fresh project
+Android notification access is a powerful permission. Expense Widget discards events from other apps before extracting or storing their notification contents. Captured ČSOB notification records currently have no automatic retention limit or deletion UI.
 
-When you're ready, run:
+## Development
+
+### Prerequisites
+
+- Node.js and npm
+- Android Studio with the Android SDK
+- An Android emulator or physical device
+
+Install dependencies and create a development build:
 
 ```bash
-npm run reset-project
+npm install
+npm run android
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+This project contains a native Android module, so it cannot run in Expo Go. To exercise automatic tracking, enable notification access in the app and use a device with ČSOB SmartBanking installed.
 
-### Other setup steps
+Run the checks:
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+npm test
+npm run lint
+```
 
-## Learn more
+## Tech stack
 
-To learn more about developing your project with Expo, look at the following resources:
+- Expo 57, React Native, React, and TypeScript
+- Kotlin native module with `NotificationListenerService`
+- SQLite and Android `RemoteViews` widgets
+- Vitest and JUnit
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Limitations
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Android only
+- ČSOB SmartBanking for Slovakia only
+- Positive EUR card transactions only
+- Dependent on the bank's current Slovak notification format
